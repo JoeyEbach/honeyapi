@@ -72,16 +72,16 @@ List<ServiceTicket> serviceTickets = new List<ServiceTicket>
         EmployeeId = 2,
         Description = "I'm prepared to sue!",
         Emergency = true,
-        DateCompleted = new DateTime()
+        DateCompleted = null
     },
     new ServiceTicket()
     {
         Id = 5,
         CustomerId = 1,
-        EmployeeId = 1,
+        EmployeeId = null,
         Description = "I am requesting a refund!",
         Emergency = false,
-        DateCompleted = new DateTime()
+        DateCompleted = null
     },
 };
 
@@ -194,6 +194,107 @@ app.MapPost("/serviceTickets", (ServiceTicket serviceTicket) =>
     serviceTickets.Add(serviceTicket);
     return serviceTicket;
 });
+
+// 1. Emergencies
+// Create an endpoint to return all of the service tickets that are incomplete and are emergencies
+app.MapGet("/serviceTickets/emergencies", () => 
+{
+    List<ServiceTicket> emergencyTickets = serviceTickets.Where(st => st.Emergency == true && st.DateCompleted == new DateTime()).ToList();
+    if (emergencyTickets == null)
+    {
+        return Results.NotFound();
+    }
+    return Results.Ok(emergencyTickets);
+});
+
+// 2. Unassigned
+// Create an endpoint to return all currently unassigned service tickets
+app.MapGet("/serviceTickets/unassigned", () => 
+{
+    List<ServiceTicket> unassignedTicket = serviceTickets.Where(st => st.EmployeeId == null).ToList();
+    if (unassignedTicket == null)
+    {
+        return Results.NotFound();
+    }
+    return Results.Ok(unassignedTicket);
+});
+
+// 3. Inactive Customers
+// Create an endpoint to return all of the customers that haven't had a service ticket closed for them in over a year (refer to the explorer chapter in Book 1 on calculating DateTimes).
+app.MapGet("customers/inactive", () => 
+{
+    DateTime yearAgo = DateTime.Now.AddYears(-1);
+    List<ServiceTicket> oldTickets = serviceTickets.Where(st => st.DateCompleted < yearAgo && st.DateCompleted != new DateTime()).ToList();
+     List<Customer> customerResult = new List<Customer>();
+    foreach(ServiceTicket ticket in oldTickets)
+    {
+        Customer person = customers.FirstOrDefault(c => c.Id == ticket.CustomerId);
+        customerResult.Add(person);
+    }
+   
+    if (customerResult == null)
+    {
+        return Results.NotFound();
+    }
+    return Results.Ok(customerResult);
+});
+
+// 4. Available employees
+// Create an endpoint to return employees not currently assigned to an incomplete service ticket
+app.MapGet("/serviceTickets/availableemployees", () => 
+{
+    var assignedEmployees = serviceTickets.Where(st => st.EmployeeId.HasValue && st.DateCompleted == null).Select(st => st.EmployeeId.Value).ToList();
+    var availableEmployees = employees.Where(e => !assignedEmployees.Contains(e.Id)).ToList();
+    return Results.Ok(availableEmployees);
+});
+
+// 5. Employee's customers
+// Create an endpoint to return all of the customers for whom a given employee has been assigned to a service ticket (whether completed or not)
+
+app.MapGet("/customer/byemployee/{id}", (int id) => 
+{
+    var tickets = serviceTickets.Where(st => st.EmployeeId == id).ToList(); 
+    List<Customer> result = new(); 
+    foreach (ServiceTicket ticket in tickets)
+    {
+        Customer customer = customers.FirstOrDefault(c => c.Id == ticket.CustomerId);
+        result.Add(customer);
+    }
+
+    return Results.Ok(result.Distinct().ToList());
+});
+
+// 6. Employee of the month
+// Create and endpoint to return the employee who has completed the most service tickets last month.
+app.MapGet("/employee/ofthemonth", () => 
+{
+    var tickets = serviceTickets.Where(st => st.DateCompleted > DateTime.Now.AddMonths(-1) && st.DateCompleted <= DateTime.Now).Select(c => c.EmployeeId.Value).ToList();
+    var result = tickets.GroupBy(x => x).OrderByDescending(x => x.Count()).ThenBy(x => x.Key).SelectMany(x => x).ToList();
+
+    var answer = employees.Where(e => result.First() == e.Id);
+
+    return Results.Ok(answer);
+});
+
+// 7. Past Ticket review
+// Create an endpoint to return completed tickets in order of the completion data, oldest first. (This will required a Linq method you haven't learned yet...)
+
+app.MapGet("/serviceTickets/insequence", () => 
+{
+    var tickets = serviceTickets.Where(s => s.DateCompleted != null).OrderBy(st => st.DateCompleted.Value).ToList();
+    return Results.Ok(tickets);
+});
+
+// 8. Prioritized Tickets (challenge)
+// Create an endpoint to return all tickets that are incomplete, in order first by whether they are emergencies, then by whether they are assigned or not (unassigned first).
+
+app.MapGet("/servicetickets/priority", () => 
+{
+    var tickets = serviceTickets.Where(st => st.DateCompleted == null).OrderBy(x => x.Emergency ? 0 : 1).ThenBy(s => s.EmployeeId == null ? 0 : 1).ToList();
+
+    return Results.Ok(tickets);
+});
+
 
 
 app.Run();
