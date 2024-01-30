@@ -103,12 +103,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/servicetickets", () => 
+app.MapGet("/api/servicetickets", () => 
 {
     return serviceTickets;
 });
 
-app.MapGet("/serviceTickets/{id}", (int id) => 
+app.MapGet("/api/serviceTickets/{id}", (int id) => 
 {
     ServiceTicket serviceTicket = serviceTickets.FirstOrDefault(s => s.Id == id);
     if (serviceTicket == null)
@@ -122,7 +122,7 @@ app.MapGet("/serviceTickets/{id}", (int id) =>
     return Results.Ok(serviceTicket);
 });
 
-app.MapPut("/serviceTickets/{id}", (int id, ServiceTicket serviceTicket) => 
+app.MapPut("/api/serviceTickets/{id}", (int id, ServiceTicket serviceTicket) => 
 {
     ServiceTicket ticketToUpdate = serviceTickets.FirstOrDefault(st => st.Id == id);
     int ticketIndex = serviceTickets.IndexOf(ticketToUpdate);
@@ -138,7 +138,7 @@ app.MapPut("/serviceTickets/{id}", (int id, ServiceTicket serviceTicket) =>
     return Results.Ok();
 });
 
-app.MapDelete("/serviceTickets/{id}", (int id) =>
+app.MapDelete("/api/serviceTickets/{id}", (int id) =>
 {
     ServiceTicket serviceTicket = serviceTickets.FirstOrDefault(st => st.Id == id);
     if (serviceTicket == null)
@@ -149,7 +149,7 @@ app.MapDelete("/serviceTickets/{id}", (int id) =>
     return Results.NoContent();
 });
 
-app.MapPost("/servicetickets/{id}/complete", (int id) => 
+app.MapPost("/api/servicetickets/{id}/complete", (int id) => 
 {
     ServiceTicket ticketToComplete = serviceTickets.FirstOrDefault(st => st.Id == id);
 
@@ -161,7 +161,7 @@ app.MapGet("/employees", () =>
     return employees;
 });
 
-app.MapGet("/employees/{id}", (int id) => 
+app.MapGet("/api/employees/{id}", (int id) => 
 {
     Employee employee = employees.FirstOrDefault(e => e.Id == id);
     if (employee == null)
@@ -172,12 +172,12 @@ app.MapGet("/employees/{id}", (int id) =>
     return Results.Ok(employee);
 });
 
-app.MapGet("/customers", () =>
+app.MapGet("/api/customers", () =>
 {
     return customers;
 });
 
-app.MapGet("/customers/{id}", (int id) => 
+app.MapGet("/api/customers/{id}", (int id) => 
 {
     Customer customer = customers.FirstOrDefault(c => c.Id == id);
     if (customer == null)
@@ -188,7 +188,7 @@ app.MapGet("/customers/{id}", (int id) =>
     return Results.Ok(customer);
 });
 
-app.MapPost("/serviceTickets", (ServiceTicket serviceTicket) => 
+app.MapPost("/api/serviceTickets", (ServiceTicket serviceTicket) => 
 {
     serviceTicket.Id = serviceTickets.Max(st => st.Id) + 1;
     serviceTickets.Add(serviceTicket);
@@ -197,7 +197,7 @@ app.MapPost("/serviceTickets", (ServiceTicket serviceTicket) =>
 
 // 1. Emergencies
 // Create an endpoint to return all of the service tickets that are incomplete and are emergencies
-app.MapGet("/serviceTickets/emergencies", () => 
+app.MapGet("/api/serviceTickets/emergencies", () => 
 {
     List<ServiceTicket> emergencyTickets = serviceTickets.Where(st => st.Emergency == true && st.DateCompleted == new DateTime()).ToList();
     if (emergencyTickets == null)
@@ -209,7 +209,7 @@ app.MapGet("/serviceTickets/emergencies", () =>
 
 // 2. Unassigned
 // Create an endpoint to return all currently unassigned service tickets
-app.MapGet("/serviceTickets/unassigned", () => 
+app.MapGet("/api/serviceTickets/unassigned", () => 
 {
     List<ServiceTicket> unassignedTicket = serviceTickets.Where(st => st.EmployeeId == null).ToList();
     if (unassignedTicket == null)
@@ -221,7 +221,7 @@ app.MapGet("/serviceTickets/unassigned", () =>
 
 // 3. Inactive Customers
 // Create an endpoint to return all of the customers that haven't had a service ticket closed for them in over a year (refer to the explorer chapter in Book 1 on calculating DateTimes).
-app.MapGet("customers/inactive", () => 
+app.MapGet("/api/customers/inactive", () => 
 {
     DateTime yearAgo = DateTime.Now.AddYears(-1);
     List<ServiceTicket> oldTickets = serviceTickets.Where(st => st.DateCompleted < yearAgo && st.DateCompleted != new DateTime()).ToList();
@@ -241,7 +241,7 @@ app.MapGet("customers/inactive", () =>
 
 // 4. Available employees
 // Create an endpoint to return employees not currently assigned to an incomplete service ticket
-app.MapGet("/serviceTickets/availableemployees", () => 
+app.MapGet("/api/serviceTickets/availableemployees", () => 
 {
     var assignedEmployees = serviceTickets.Where(st => st.EmployeeId.HasValue && st.DateCompleted == null).Select(st => st.EmployeeId.Value).ToList();
     var availableEmployees = employees.Where(e => !assignedEmployees.Contains(e.Id)).ToList();
@@ -251,7 +251,7 @@ app.MapGet("/serviceTickets/availableemployees", () =>
 // 5. Employee's customers
 // Create an endpoint to return all of the customers for whom a given employee has been assigned to a service ticket (whether completed or not)
 
-app.MapGet("/customer/byemployee/{id}", (int id) => 
+app.MapGet("/api/customer/byemployee/{id}", (int id) => 
 {
     var tickets = serviceTickets.Where(st => st.EmployeeId == id).ToList(); 
     List<Customer> result = new(); 
@@ -266,7 +266,7 @@ app.MapGet("/customer/byemployee/{id}", (int id) =>
 
 // 6. Employee of the month
 // Create and endpoint to return the employee who has completed the most service tickets last month.
-app.MapGet("/employee/ofthemonth", () => 
+app.MapGet("/api/employee/ofthemonth", () => 
 {
     var tickets = serviceTickets.Where(st => st.DateCompleted > DateTime.Now.AddMonths(-1) && st.DateCompleted <= DateTime.Now).Select(c => c.EmployeeId.Value).ToList();
     var result = tickets.GroupBy(x => x).OrderByDescending(x => x.Count()).ThenBy(x => x.Key).SelectMany(x => x).ToList();
@@ -279,7 +279,7 @@ app.MapGet("/employee/ofthemonth", () =>
 // 7. Past Ticket review
 // Create an endpoint to return completed tickets in order of the completion data, oldest first. (This will required a Linq method you haven't learned yet...)
 
-app.MapGet("/serviceTickets/insequence", () => 
+app.MapGet("/api/serviceTickets/insequence", () => 
 {
     var tickets = serviceTickets.Where(s => s.DateCompleted != null).OrderBy(st => st.DateCompleted.Value).ToList();
     return Results.Ok(tickets);
@@ -288,7 +288,7 @@ app.MapGet("/serviceTickets/insequence", () =>
 // 8. Prioritized Tickets (challenge)
 // Create an endpoint to return all tickets that are incomplete, in order first by whether they are emergencies, then by whether they are assigned or not (unassigned first).
 
-app.MapGet("/servicetickets/priority", () => 
+app.MapGet("/api/servicetickets/priority", () => 
 {
     var tickets = serviceTickets.Where(st => st.DateCompleted == null).OrderBy(x => x.Emergency ? 0 : 1).ThenBy(s => s.EmployeeId == null ? 0 : 1).ToList();
 
