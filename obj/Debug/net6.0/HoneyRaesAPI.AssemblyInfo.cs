@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HoneyRaesAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a79d686d163d0e73d345ebd0ae5a08264215aca8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
 [assembly: System.Reflection.AssemblyProductAttribute("HoneyRaesAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HoneyRaesAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,16 +1,31 @@
 ﻿<Properties StartupConfiguration="{44960BC1-99CC-4672-AFCC-11723984FB91}|https">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.HoneyRaesAPI PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Program.cs">
+    <Files>
+      <File FileName="HoneyRaesAPI.http" />
+      <File FileName="Program.cs" Line="116" Column="35" />
+      <File FileName="Properties/launchSettings.json" />
+      <File FileName="Models/Customer.cs" />
+      <File FileName="Models/Employee.cs" />
+      <File FileName="appsettings.json" />
+      <File FileName="Models/ServiceTicket.cs" />
+    </Files>
     <Pads>
       <Pad Id="ProjectPad">
-        <State name="__root__" />
+        <State name="__root__">
+          <Node name="HoneyRaesAPI">
+            <Node name="HoneyRaesAPI">
+              <Node name="Program.cs" selected="True" />
+            </Node>
+          </Node>
+        </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.ItemProperties.HoneyRaesAPI PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
 </Properties>
